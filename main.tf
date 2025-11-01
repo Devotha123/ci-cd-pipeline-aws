@@ -9,19 +9,15 @@ terraform {
   }
 }
 
-
-
-// VPC and Networking
-
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = { Name = "ngixapp-vpc" }
+  tags = {
+    Name = "main-vpc"
+  }
 }
-
-//subnets 
 
 resource "aws_subnet" "public_b1" {
   vpc_id                  = aws_vpc.main.id
@@ -132,15 +128,15 @@ resource "aws_security_group" "ecs_sg" {
 resource "aws_lb" "ecs_alb" {
   name               = "ecs-alb"
   load_balancer_type = "application"
-  subnets            = [  aws_subnet.public_b1.id, aws_subnet.public_b2.id]
+  subnets            = [aws_subnet.public_b1.id, aws_subnet.public_b2.id]
   security_groups    = [aws_security_group.alb_sg.id]
 }
 
 resource "aws_lb_target_group" "ecs_tg" {
-  name     = "ecs-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name        = "ecs-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
   target_type = "ip"
 
   health_check {
